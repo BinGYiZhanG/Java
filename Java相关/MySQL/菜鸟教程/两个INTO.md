@@ -1,3 +1,5 @@
+### SQL SELECT INTO 语句(MySQL不支持)
+
 ### SQL INSERT INTO SELECT 语句
 
 * 通过 SQL，您可以从一个表复制信息到另一个表。
