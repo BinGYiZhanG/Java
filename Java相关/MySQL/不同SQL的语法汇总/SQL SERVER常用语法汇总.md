@@ -15,3 +15,10 @@ create database db-name  (X)
 create database db_name  
 ```
 
+#### 4，[在SQL Server中实现 Limit m, n 的功能](https://blog.csdn.net/sjzs5590/article/details/7337541)
+
+![](https://github.com/BinGYiZhanG/Java/blob/master/Java%E7%9B%B8%E5%85%B3/MySQL/Images/mysql2.jpg)
+
+#### 5，[SQL Server里的 ISNULL 与 NULLIF](https://blog.csdn.net/qq_34068082/article/details/59114045)
+
+![](https://github.com/BinGYiZhanG/Java/blob/master/Java%E7%9B%B8%E5%85%B3/MySQL/Images/mysql3.jpg)
