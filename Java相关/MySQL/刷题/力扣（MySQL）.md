@@ -122,6 +122,10 @@ Order By a.id;
 ### 5，596 超过5名学生的课
 * 错误代码：
 ```
+Select class
+From courses
+Group By class
+Having Count(*) >= 5
 
 ```
 
@@ -131,9 +135,6 @@ Select class
 From courses
 Group By class
 Having Count(Distinct Student) >= 5
-
-
-
 ```
 
 ### 6,177 第N高的薪水
