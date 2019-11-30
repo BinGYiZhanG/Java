@@ -1,0 +1,203 @@
+```
+创建表的时候
+CREATE TABLE `titles` (
+`emp_no` int(11) NOT NULL,
+`title` varchar(50) NOT NULL,
+`from_date` date NOT NULL,
+`to_date` date );
+
+是左上角的 ` ,而不是 ‘
+
+
+```
+
+
+
+### 2，查找入职员工时间排名倒数第三的员工所有信息
+```mysql
+Select *
+From employees
+Where hire_date = (
+    Select hire_date
+    From employees
+    Order By hire_date Desc
+    Limit 2,1
+);
+注意Limit a,b 用法,a,b之外不加()
+
+```
+
+### 3，查找当前薪水详情以及部门编号dept_no
+* （1），我的代码，不对，
+```mysql
+Select de.emp_no , s.salary , de.from_date , de.to_date , de.dept_no
+From dept_manager As de Inner Join salaries As s
+On de.emp_no = s.emp_no And de.from_date = s.from_date And de.to_date = s.to_date
+```
+* 应该把```salary```表放在前面（左外连接，当连接是```Join```时，是内连接）
+  * 也就是说，当查找```Employees```还需要将该表和```Department```表连接时，应该把Employees放在```Join```前面
+* （2），修改代码1
+```
+Select de.emp_no , s.salary , de.from_date , de.to_date , de.dept_no
+From dept_manager As de Inner Join salaries As s
+On de.emp_no = s.emp_no
+Where de.to_date = '9999-01-01'
+And s.to_date = '9999-01-01';
+
+```
+* 正解代码：
+```
+Select s.emp_no , s.salary , s.from_date , s.to_date , de.dept_no
+From salaries As s Left Join dept_manager As de
+On de.emp_no = s.emp_no
+Where de.to_date = '9999-01-01'
+And s.to_date = '9999-01-01';
+
+```
+
+### 4，查找所有已经分配部门的员工的last_name和first_name
+
+```mysql
+SELECT e.last_name , e.first_name , d.dept_no
+FROM employees e INNER JOIN dept_emp d 
+On e.emp_no = d.emp_no;
+```
+* 答案是按employees表中顺序输出的，所以使用内连接查询时，必须将employees表放在前面。
+
+```mysql
+Select last_name,first_name,dept_no 
+From employees,dept_emp 
+Where dept_emp.emp_no = employees.emp_no;
+
+```
+* 使用左连接查询时，employees中没有分配部门的员工（没有被记录在dept_emp表）dept_no字段被自动取NULL然后被输出，所以应当剔除（复合条件连接查询）。 
+
+
+### 5，
+
+### 6，查找所有员工入职时候的薪水情况
+```
+Select e.emp_no , s.salary 
+From employees As e Inner Join salaries As s
+On e.emp_no = s.emp_no And e.hire_date = s.from_date
+Order By e.emp_no Desc;
+```
+
+### 7，查找薪水涨幅超过15次的员工号```emp_no```以及其对应的涨幅次数```t```
+```
+SELECT emp_no, COUNT(emp_no) AS t 
+FROM salaries 
+GROUP BY emp_no 
+HAVING t > 15
+
+```
+
+### 8，找出所有员工当前薪水salary情况
+```
+Select Distinct salary
+From salaries
+Where to_date = '9999-01-01'
+Order By salary DESC;
+
+```
+
+### 9，获取所有部门当前```manager```的当前薪水情况，给出```dept_no, emp_no```以及```salary```，当前表示(_ _ _)
+```
+Select Distinct d.dept_no,d.emp_no,s.salary
+From dept_manager d Left Join salaries s
+On d.emp_no = s.emp_no
+Where d.to_date = '9999-01-01';
+
+```
+* 订正：本题是查'9999-01-01'这天的信息，但是得两个表一块筛选
+```
+SELECT * 
+FROM salaries AS s INNER JOIN dept_manager AS d 
+ON d.emp_no = s.emp_no
+AND d.to_date = '9999-01-01'
+AND s.to_date = '9999-01-01'
+
+```
+* [题解](https://www.nowcoder.com/questionTerminal/4c8b4a10ca5b44189e411107e1d8bec1)
+
+### 10，获取所有非manager的员工emp_no(_)
+```
+Select emp_no
+From employees
+Where emp_no Not In (
+	Select emp_no
+	From dept_manager
+)
+
+```
+
+### 11，获取所有员工当前的manager:（_ _ _）
+* 注意：特点：<> 不等号的灵活使用
+```
+Select de.emp_no ,dm.emp_no As manager_no
+From dept_emp As de Inner Join dept_manager As dm
+On de.dept_no = dm.dept_no
+Where dm.to_date = '9999-01-01' And de.to_date = '9999-01-01' And de.emp_no <> dm.emp_no
+
+```
+![](https://github.com/BinGYiZhanG/Java/blob/master/Java%E7%9B%B8%E5%85%B3/MySQL/Images/mysql1911301901.jpg)
+
+### 12，获取所有部门中当前员工薪水最高的相关信息（_ _ _）
+```
+Select d.dept_no , s.emp_no , Max(s.salary) As salary
+From salaries As s Inner Join dept_emp As d
+On d.emp_no = s.emp_no
+Where d.to_date = '9999-01-01' And s.to_date = '9999-01-01'
+Group By d.dept_no;
+
+```
+
+![](https://github.com/BinGYiZhanG/Java/blob/master/Java%E7%9B%B8%E5%85%B3/MySQL/Images/mysql1911301903.jpg)
+![](https://github.com/BinGYiZhanG/Java/blob/master/Java%E7%9B%B8%E5%85%B3/MySQL/Images/mysql1911301905.jpg)
+
+### 14，从titles表获取按照title进行分组
+* 我的错解
+```
+Select title , count(*) t
+From titles
+Group By title
+Having t >= 2;
+
+```
+* 正解：
+```
+Select title , count(Distinct emp_no) t
+From titles
+Group By title
+Having t >= 2
+
+```
+### 15，从titles表获取按照title进行分组，注意对于重复的emp_no进行忽略。
+* 我的错解
+```
+Select title , count(*) t
+From titles
+Group By title
+Having t >= 2;
+
+```
+* 正解
+```
+Select title , count(Distinct emp_no) t
+From titles
+Group By title
+Having t >= 2
+
+```
+
+* 主要是用到了```Distinct```去重（14,15题比较）
+
+
+
+
+
+
+
+
+
+
